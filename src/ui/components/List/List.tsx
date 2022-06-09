@@ -5,9 +5,10 @@ import { Picture, ListItem, ListStyled, InfoContainer, Name, Description } from 
 
 interface ListProps {
     pets: Pet[];
+    onSelect: (pet: Pet) => void;
 }
 
-export default function List({ pets }: ListProps) {
+export default function List({ pets, onSelect }: ListProps) {
     const maxSizeText = 200;
 
     return (
@@ -20,7 +21,7 @@ export default function List({ pets }: ListProps) {
                         <Description>
                         {TextService.limitText(pet.historia, maxSizeText)}
                         </Description>
-                        <Button variant={'contained'} fullWidth >
+                        <Button onClick={() => onSelect(pet)} variant={'contained'} fullWidth >
                             Adotar {pet.nome}
                         </Button>
                     </InfoContainer>

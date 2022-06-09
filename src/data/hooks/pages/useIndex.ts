@@ -1,13 +1,68 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pet } from "../../@types/Pet";
+import { ApiService } from "../../services/ApiService";
+import { AxiosError } from 'axios';
 
 export function useIndex() {
 
     const [ selectedPet, setSelectedPet ] = useState<Pet | null>(null);
 
-    const [listPets, setListPets] = useState(
-        [
-            {
+    const [email, setEmail] = useState('');
+    const [amount, setAmount] = useState('');
+    const [message, setMessage] = useState('');
+    const [listPets, setListPets] = useState<Pet[]>([]);
+
+    function adotePet() {      
+      if(selectedPet !== null){
+        if(validateData()){
+          ApiService.post('/adocoes', {
+            pet_id: selectedPet.id,
+            email: email,
+            valor: amount  
+          }).then(response => {
+            setSelectedPet(null);
+            setMessage('Pet adotado com sucesso!');
+            resetForm();
+          }).catch((error: AxiosError) => {              
+              setMessage(error.response?.data.message);
+          });
+        } else {
+          setMessage('Preencha os campos corretamente');
+        }
+      }
+    }
+
+    function validateData() {
+      return email.length > 0 && amount.length > 0;
+    }
+
+    function resetForm() {
+      setEmail('');
+      setAmount('');
+    }
+       
+    useEffect(() => {
+      ApiService.get('/pets').then(response => {
+        setListPets(response.data);
+      })
+    }, []);
+
+    return {
+        listPets,
+        selectedPet,
+        setSelectedPet,
+        email,
+        setEmail,
+        amount,
+        setAmount,
+        message,
+        setMessage,
+        adotePet
+    }
+}
+
+/**
+ {
               id: 1,
               nome: 'Spike',
               historia: 'É muito doidinho e possui um frivião no cú, mas também muito amável. Sua melhor skill é não deixar comida sobrar.',
@@ -24,13 +79,5 @@ export function useIndex() {
               nome: 'Valquírio',
               historia: 'Lorde dos gatos, Rei dos Telhados. Abasteça continuamente o estômago dessa linda criatura com ração Super Premium e patê, para que você TALVEZ seja poupado no dia que a revolução começar...',
               foto: 'https://c.pxhere.com/photos/5a/59/cat_black_white_portrait_domestic_cute_pet_feline-709883.jpg!d'
-            },          
-          ]
-    );
-
-    return {
-        listPets,
-        selectedPet,
-        setSelectedPet
-    }
-}
+            },     
+ */
